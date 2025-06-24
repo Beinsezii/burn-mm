@@ -3,8 +3,8 @@ use burn::tensor;
 use std::time::Instant;
 
 fn main() {
-    type Backend = burn::backend::rocm::Rocm;
-    let device = burn::backend::rocm::HipDevice::new(0);
+    type Backend = burn::backend::wgpu::Vulkan;
+    let device = burn::backend::wgpu::WgpuDevice::DefaultDevice;
     for dtype in [
         tensor::DType::F32, // page faults sometimes
         // tensor::DType::BF16, // page faults always

@@ -57,6 +57,22 @@ fn main() {
         [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
     );
 
+    #[cfg(feature = "libtorch")]
+    bench_mm!(
+        "rocm",
+        burn::backend::libtorch::LibTorch,
+        &burn::backend::libtorch::LibTorchDevice::Cpu,
+        [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
+    );
+
+    #[cfg(feature = "libtorch-cuda")]
+    bench_mm!(
+        "rocm",
+        burn::backend::libtorch::LibTorch,
+        &burn::backend::libtorch::LibTorchDevice::Cuda(0),
+        [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
+    );
+
     #[cfg(all(feature = "wgpu", not(feature = "vulkan")))]
     bench_mm!(
         "wgpu",

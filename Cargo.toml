@@ -14,6 +14,8 @@ burn = { version = "0.18.0", features = [
 cuda = ["burn/cuda"]
 ndarray = ["burn/ndarray"]
 rocm = ["burn/rocm"]
+libtorch = ["burn/tch"]
+libtorch-cuda = ["burn/tch"]
 vulkan = ["burn/vulkan"]
 wgpu = ["burn/wgpu"]
 

@@ -3,12 +3,14 @@ use burn::tensor;
 use std::time::Instant;
 
 fn main() {
-    type Backend = burn::backend::wgpu::Vulkan;
-    let device = burn::backend::wgpu::WgpuDevice::DefaultDevice;
+    type Backend = burn::backend::ndarray::NdArray;
+    let device = burn::backend::ndarray::NdArrayDevice::Cpu;
     for dtype in [
-        tensor::DType::F32, // page faults sometimes
-        // tensor::DType::BF16, // page faults always
-        tensor::DType::F16,
+        tensor::DType::F64, 
+        tensor::DType::F32, 
+        // Not supported on ndarray?
+        // tensor::DType::BF16, 
+        // tensor::DType::F16,
     ] {
         for n in [256, 512, 1024, 2048, 4096] {
             let flops = n * n * n * 2;

@@ -38,12 +38,7 @@ fn main() {
         "cuda",
         burn::backend::cuda::Cuda,
         &burn::backend::cuda::CudaDevice::default(),
-        [
-            // tensor::DType::F64,
-            tensor::DType::F32,
-            tensor::DType::BF16,
-            tensor::DType::F16,
-        ]
+        [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
     );
 
     #[cfg(feature = "ndarray")]
@@ -51,12 +46,7 @@ fn main() {
         "ndarray",
         burn::backend::ndarray::NdArray,
         &burn::backend::ndarray::NdArrayDevice::Cpu,
-        [
-            tensor::DType::F64,
-            tensor::DType::F32,
-            // tensor::DType::BF16,
-            // tensor::DType::F16,
-        ]
+        [tensor::DType::F32]
     );
 
     #[cfg(feature = "rocm")]
@@ -64,25 +54,15 @@ fn main() {
         "rocm",
         burn::backend::rocm::Rocm,
         &burn::backend::rocm::RocmDevice::default(),
-        [
-            // tensor::DType::F64,
-            tensor::DType::F32,
-            tensor::DType::BF16,
-            tensor::DType::F16,
-        ]
+        [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
     );
 
-    #[cfg(feature = "wgpu")]
+    #[cfg(all(feature = "wgpu", not(feature = "vulkan")))]
     bench_mm!(
         "wgpu",
         burn::backend::wgpu::Wgpu,
         &burn::backend::wgpu::WgpuDevice::DefaultDevice,
-        [
-            // tensor::DType::F64,
-            tensor::DType::F32,
-            // tensor::DType::BF16,
-            tensor::DType::F16,
-        ]
+        [tensor::DType::F32, tensor::DType::F16]
     );
 
     #[cfg(feature = "vulkan")]
@@ -90,11 +70,6 @@ fn main() {
         "vulkan",
         burn::backend::wgpu::Vulkan,
         &burn::backend::wgpu::WgpuDevice::DefaultDevice,
-        [
-            // tensor::DType::F64,
-            tensor::DType::F32,
-            // tensor::DType::BF16,
-            tensor::DType::F16,
-        ]
+        [tensor::DType::F32, tensor::DType::F16]
     );
 }

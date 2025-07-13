@@ -3,7 +3,7 @@ use burn::tensor;
 use std::time::Instant;
 
 macro_rules! bench_mm {
-    ($backend:ty, $device:expr, $dtypes:expr) => {
+    ($label:literal, $backend:ty, $device:expr, $dtypes:expr) => {
         for dtype in $dtypes {
             for n in [256, 512, 1024, 2048, 4096] {
                 let flops = n * n * n * 2;
@@ -13,7 +13,7 @@ macro_rules! bench_mm {
                 let rhs =
                     Tensor::<$backend, 2>::random([n, n], tensor::Distribution::Default, $device)
                         .cast(dtype);
-                let duration = flops as f64 * 1e-12
+                let tflops = flops as f64 * 1e-12
                     / (0..20)
                         .map(|_| {
                             let clock = Instant::now();
@@ -24,15 +24,18 @@ macro_rules! bench_mm {
                         .min()
                         .unwrap()
                         .as_secs_f64();
-                println!("{duration:6.2}\t{n:4}\t{dtype:?}");
+                println!("{}\t{tflops:.2}\t{n}\t{dtype:?}", $label);
             }
         }
     };
 }
 
 fn main() {
+    println!("backend\ttflops\tshape\tdtype");
+
     #[cfg(feature = "cuda")]
     bench_mm!(
+        "cuda",
         burn::backend::cuda::Cuda,
         &burn::backend::cuda::CudaDevice::default(),
         [
@@ -45,6 +48,7 @@ fn main() {
 
     #[cfg(feature = "ndarray")]
     bench_mm!(
+        "ndarray",
         burn::backend::ndarray::NdArray,
         &burn::backend::ndarray::NdArrayDevice::Cpu,
         [
@@ -57,6 +61,7 @@ fn main() {
 
     #[cfg(feature = "rocm")]
     bench_mm!(
+        "rocm",
         burn::backend::rocm::Rocm,
         &burn::backend::rocm::RocmDevice::default(),
         [
@@ -69,6 +74,7 @@ fn main() {
 
     #[cfg(feature = "wgpu")]
     bench_mm!(
+        "wgpu",
         burn::backend::wgpu::Wgpu,
         &burn::backend::wgpu::WgpuDevice::DefaultDevice,
         [
@@ -81,6 +87,7 @@ fn main() {
 
     #[cfg(feature = "vulkan")]
     bench_mm!(
+        "vulkan",
         burn::backend::wgpu::Vulkan,
         &burn::backend::wgpu::WgpuDevice::DefaultDevice,
         [

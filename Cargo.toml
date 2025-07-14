@@ -4,18 +4,15 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-burn = { version = "0.18.0", features = [
-    "ndarray",
-    # "vulkan",
-    # "wgpu", # exclusive with vulkan?
-], git = "https://github.com/tracel-ai/burn.git" }
+burn = { version = "0.18.0", git = "https://github.com/tracel-ai/burn.git" }
 
 [features]
 cuda = ["burn/cuda"]
-ndarray = ["burn/ndarray"]
-rocm = ["burn/rocm"]
 libtorch = ["burn/tch"]
 libtorch-cuda = ["burn/tch"]
+ndarray = ["burn/ndarray"]
+openblas = ["ndarray", "burn/openblas"]
+rocm = ["burn/rocm"]
 vulkan = ["burn/vulkan"]
 wgpu = ["burn/wgpu"]
 

@@ -3,7 +3,7 @@ use burn::tensor;
 use std::time::Instant;
 
 macro_rules! bench_mm {
-    ($label:literal, $backend:ty, $device:expr, $dtypes:expr) => {
+    ($label:expr, $backend:ty, $device:expr, $dtypes:expr) => {
         for dtype in $dtypes {
             for n in [256, 512, 1024, 2048, 4096] {
                 let flops = n * n * n * 2;
@@ -41,22 +41,6 @@ fn main() {
         [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
     );
 
-    #[cfg(feature = "ndarray")]
-    bench_mm!(
-        "ndarray",
-        burn::backend::ndarray::NdArray,
-        &burn::backend::ndarray::NdArrayDevice::Cpu,
-        [tensor::DType::F32]
-    );
-
-    #[cfg(feature = "rocm")]
-    bench_mm!(
-        "rocm",
-        burn::backend::rocm::Rocm,
-        &burn::backend::rocm::RocmDevice::default(),
-        [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
-    );
-
     #[cfg(feature = "libtorch")]
     bench_mm!(
         "rocm",
@@ -70,6 +54,26 @@ fn main() {
         "rocm",
         burn::backend::libtorch::LibTorch,
         &burn::backend::libtorch::LibTorchDevice::Cuda(0),
+        [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
+    );
+
+    #[cfg(feature = "ndarray")]
+    bench_mm!(
+        if cfg!(feature = "openblas") {
+            "openblas"
+        } else {
+            "ndarray"
+        },
+        burn::backend::ndarray::NdArray,
+        &burn::backend::ndarray::NdArrayDevice::Cpu,
+        [tensor::DType::F32]
+    );
+
+    #[cfg(feature = "rocm")]
+    bench_mm!(
+        "rocm",
+        burn::backend::rocm::Rocm,
+        &burn::backend::rocm::RocmDevice::default(),
         [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
     );
 

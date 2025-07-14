@@ -3,16 +3,12 @@ use burn::tensor;
 use std::time::Instant;
 
 macro_rules! bench_mm {
-    ($label:expr, $backend:ty, $device:expr, $dtypes:expr) => {
+    ($label:expr, $backend:ty, $device:expr, $dtypes:expr, $shapes:expr) => {
         for dtype in $dtypes {
-            for n in [256, 512, 1024, 2048, 4096] {
+            for n in $shapes {
                 let flops = n * n * n * 2;
-                let lhs =
-                    Tensor::<$backend, 2>::random([n, n], tensor::Distribution::Default, $device)
-                        .cast(dtype);
-                let rhs =
-                    Tensor::<$backend, 2>::random([n, n], tensor::Distribution::Default, $device)
-                        .cast(dtype);
+                let lhs = Tensor::<$backend, 2>::random([n, n], tensor::Distribution::Default, $device).cast(dtype);
+                let rhs = Tensor::<$backend, 2>::random([n, n], tensor::Distribution::Default, $device).cast(dtype);
                 let tflops = flops as f64 * 1e-12
                     / (0..20)
                         .map(|_| {
@@ -28,6 +24,9 @@ macro_rules! bench_mm {
             }
         }
     };
+    ($label:expr, $backend:ty, $device:expr, $dtypes:expr) => {
+        bench_mm!($label, $backend, $device, $dtypes, [256, 512, 1024, 2048, 4096]);
+    };
 }
 
 fn main() {
@@ -41,12 +40,13 @@ fn main() {
         [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
     );
 
-    #[cfg(feature = "libtorch")]
+    #[cfg(feature = "libtorch-cpu")]
     bench_mm!(
-        "libtorch",
+        "libtorch-cpu",
         burn::backend::libtorch::LibTorch,
         &burn::backend::libtorch::LibTorchDevice::Cpu,
-        [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
+        [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16],
+        [256, 512, 1024] // half types take years if not supported in avx
     );
 
     #[cfg(feature = "libtorch-cuda")]
@@ -59,11 +59,7 @@ fn main() {
 
     #[cfg(feature = "ndarray")]
     bench_mm!(
-        if cfg!(feature = "openblas") {
-            "openblas"
-        } else {
-            "ndarray"
-        },
+        if cfg!(feature = "openblas") { "openblas" } else { "ndarray" },
         burn::backend::ndarray::NdArray,
         &burn::backend::ndarray::NdArrayDevice::Cpu,
         [tensor::DType::F32]

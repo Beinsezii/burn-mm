@@ -43,7 +43,7 @@ fn main() {
 
     #[cfg(feature = "libtorch")]
     bench_mm!(
-        "rocm",
+        "libtorch",
         burn::backend::libtorch::LibTorch,
         &burn::backend::libtorch::LibTorchDevice::Cpu,
         [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]
@@ -51,7 +51,7 @@ fn main() {
 
     #[cfg(feature = "libtorch-cuda")]
     bench_mm!(
-        "rocm",
+        "libtorch-cuda",
         burn::backend::libtorch::LibTorch,
         &burn::backend::libtorch::LibTorchDevice::Cuda(0),
         [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16]

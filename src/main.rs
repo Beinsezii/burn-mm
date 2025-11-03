@@ -15,7 +15,7 @@ macro_rules! bench_mm {
                             let clock = Instant::now();
                             let _ = lhs.clone().matmul(rhs.clone()); // can't use refs?
                             <$backend>::sync($device);
-                            Instant::now().checked_duration_since(clock).unwrap()
+                            clock.elapsed()
                         })
                         .min()
                         .unwrap()

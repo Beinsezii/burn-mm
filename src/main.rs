@@ -6,7 +6,7 @@ macro_rules! bench_mm {
     ($label:expr, $backend:ty, $device:expr, $dtypes:expr, $shapes:expr) => {
         for dtype in $dtypes {
             for n in $shapes {
-                let flops = n * n * n * 2;
+                let flops: usize = n * n * n * 2;
                 let lhs = Tensor::<$backend, 2>::random([n, n], tensor::Distribution::Default, $device).cast(dtype);
                 let rhs = Tensor::<$backend, 2>::random([n, n], tensor::Distribution::Default, $device).cast(dtype);
                 let tflops = flops as f64 * 1e-12
@@ -15,7 +15,7 @@ macro_rules! bench_mm {
                             let clock = Instant::now();
                             let _ = lhs.clone().matmul(rhs.clone()); // can't use refs?
                             <$backend>::sync($device);
-                            Instant::now() - clock
+                            Instant::now().checked_duration_since(clock).unwrap()
                         })
                         .min()
                         .unwrap()
@@ -31,6 +31,15 @@ macro_rules! bench_mm {
 
 fn main() {
     println!("backend\ttflops\tshape\tdtype");
+
+    #[cfg(feature = "cpu")]
+    bench_mm!(
+        "cpu",
+        burn::backend::cpu::Cpu,
+        &burn::backend::cpu::CpuDevice,
+        [tensor::DType::F32, tensor::DType::BF16, tensor::DType::F16],
+        [256, 512, 1024] // half types take years if not supported in avx
+    );
 
     #[cfg(feature = "cuda")]
     bench_mm!(

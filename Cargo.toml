@@ -17,4 +17,4 @@ rocm = ["burn/rocm"]
 vulkan = ["burn/vulkan"]
 wgpu = ["burn/wgpu"]
 
-default = ["cpu"]
+default = ["ndarray"]
